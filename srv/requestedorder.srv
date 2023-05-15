@@ -1,0 +1,6 @@
+int32 num_gaskets
+int32 num_gears
+int32 num_pistons
+int32 priority
+---
+bool success

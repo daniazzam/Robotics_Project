@@ -1,0 +1,49 @@
+<launch>
+	<param name="/use_sim_time" value="true" />
+
+	<remap from="joint_states" to="mir/joint_states" />
+	<remap from="mobile_base_controller/cmd_vel" to="cmd_vel" />
+	<remap from="mobile_base_controller/odom" to="odom" />
+
+	<arg name="tf_prefix" default=""/>
+	<arg name="prefix" default=""/>
+		
+	<include file="$(find osrf_gear)/launch/sample_environment.launch"/>
+
+	<arg name="model" default="$(find mir_description)/urdf/mir.urdf.xacro"/>
+	<param name="robot_description" command="$(find xacro)/xacro.py $(arg model)"/>
+	<node name="spawn_robot" pkg="gazebo_ros" type="spawn_model" args="-urdf -param robot_description -x -2 -y -0.3 -z 0.1 -model robot_model" respawn="false" output="screen"/>
+	<node name="spawn_wall" pkg="gazebo_ros" type="spawn_model" args="-file /home/ziad/model_editor_models/walls/model.sdf -sdf -x -9.543 -y 1.479 -z 0.5 -model walls" respawn="false" output="screen"/>
+
+	<rosparam file="$(find mir_description)/config/joint_state_controller.yaml" command="load" />
+
+	<rosparam file="$(find mir_description)/config/diffdrive_controller.yaml" command="load" subst_value="true" />
+
+	<node name="controller_spawner" pkg="controller_manager" type="spawner" output="screen" args="joint_state_controller mobile_base_controller"/>	
+
+	<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+		<rosparam param="source_list">[mir/joint_states]</rosparam>
+		<param name="rate" value="200.0" />
+	</node>
+
+	<node pkg="robot_localization" type="ekf_localization_node" name="ekf_localization_node" clear_params="true" output="screen">
+		<rosparam command="load" file="$(find mir_gazebo)/config/ekf.yaml" subst_value="true" />
+	</node>
+
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" output="screen" />
+    
+    <node pkg="topic_tools" type="relay" name="b_scan_relay" args="b_scan scan"/>
+  	
+  	<node pkg="topic_tools" type="relay" name="f_scan_relay" args="f_scan scan"/>
+
+	<node name="b_rep117_laser_filter" pkg="mir_driver" type="rep117_filter.py" output="screen">
+		<remap from="scan" to="b_scan" />
+		<remap from="scan_filtered" to="b_scan_rep117" />
+	</node>
+
+	<node name="f_rep117_laser_filter" pkg="mir_driver" type="rep117_filter.py" output="screen">
+		<remap from="scan" to="f_scan" />
+		<remap from="scan_filtered" to="f_scan_rep117" />
+	</node>
+  
+</launch>
