@@ -1,49 +1,64 @@
-# Project Overview: Automated Factory Order Fulfillment System
+# Project Overview: Robotic Order Fulfillment System
 
 ## Introduction
-- **Objective**: Enhance factory order fulfillment efficiency through a robotic system.
-- **Technology Stack**: Robotics, intelligent algorithms, ROS (Robot Operating System), user-centric design.
-- **Tools Used**: MOVEIT motion planning, RViz, Gazebo Simulator.
-- **Skills Demonstrated**: Robotic manipulation, algorithmic problem solving, system integration.
+- **Objective**: To modernize the factory order fulfillment process with an automated robotic system.
+- **Technologies Employed**: Advanced robotics, ROS (Robot Operating System), intelligent algorithms, and user-centric design principles.
+- **Primary Tools**: MOVEIT for robotic motion planning, RViz for visualization, Gazebo for simulation.
+- **Skills Demonstrated**: Robotic programming, automated system integration, dynamic path planning, and real-time processing.
 
 ## System Description
-- **Robotic Components**: Includes advanced robots, robotic arms, and mobile robots.
-- **Functionality**:
-  - Robotic arms work in tandem to retrieve and pack items.
-  - Mobile robots deliver orders to designated destinations.
-- **Highlight**: Integration of precision robotics with intelligent path planning and user-centric operational processes.
+- **Components**: A fleet of advanced robotic arms and mobile robots optimized for precise and efficient order handling.
+- **Operations**:
+  - Automated retrieval and packaging of items using robotic arms.
+  - Autonomous delivery robots ensuring accurate and timely order delivery.
+- **Design Focus**: Enhanced interaction between human operators and robotic systems for streamlined operations.
 
-## ROS Architecture
-### ROS Nodes
+## ROS Architecture Comprehensive Overview
+
+![](assets/1.jpg)
+
+### Detailed Node Functions
 - **Arm1 ROS Node**
-  - **Role**: Processes and prioritizes client orders using a priority-based scheduling algorithm.
-  - **Capabilities**:
-    - Utilizes MOVEIT for optimal motion planning, ensuring safety and efficiency.
-    - Provides ROS services like `AddOrderService` for order submission and `GetOrderService` for order status updates.
-- **Object Detector Node**
-  - **Role**: Detects and classifies objects on the conveyor belt using computer vision.
-  - **Functionality**:
-    - Subscribes to raw image feeds, publishing processed outputs for real-time monitoring.
-    - Coordinates with Arm2 for object pre-positioning and pickup.
+  - **Role**: Central processing unit for order management, handling the specifics of order retrieval and prioritization.
+  - **Priority-Based Management**: Utilizes a sophisticated priority queue to manage and execute orders based on urgency and importance.
+  - **ROS Services**:
+    - `AddOrderService`: Enables addition and prioritization of new orders into the system's queue.
+    - `GetOrderService`: Provides real-time updates on order status and initiates order execution.
+  - **MOVEIT Integration**: Employs MOVEIT for advanced motion planning, ensuring optimal and safe robotic movements.
+  - **Inter-node Communication**:
+    - Acts as a service client to `Arm2`, facilitating precise object placement based on order priority.
+
 - **Arm2 ROS Node**
-  - **Role**: Acts as an action server to execute pickup and positioning tasks based on inputs from the Object Detector.
-  - **Functionality**:
-    - Receives and acts on pre-positioning and pickup requests.
-    - Determines the placement of objects based on the priority of orders.
+  - **Functionality**: Executes actions related to object pickup and placement, directly interacting with the conveyor belt operations.
+  - **Services and Actions**:
+    - Receives specific action commands from the Object Detector Node to adjust positioning or initiate pickups.
+    - Provides a service for determining and communicating the correct placement box based on object priority, enhancing order accuracy.
 
-## Challenges and Solutions
-- **Challenges**:
-  - Difficulty in handling objects at varying conveyor belt speeds.
-  - Limitations in simultaneous multiple object detection and specific object handling.
-- **Proposed Improvements**:
-  - Implementation of feedback mechanisms for error handling and better coordination between robotic arms.
-  - Dynamic adjustment of robotic actions based on conveyor belt speed measurements.
+- **Object Detector Node**
+  - **Capabilities**: Detects and classifies objects moving on the conveyor using advanced computer vision techniques.
+  - **Data Handling**:
+    - Subscribes to `/conveyor/camera1/image_raw` for real-time image processing.
+    - Publishes to `image_output` for monitoring and debugging of the detection process.
+  - **Role**: Specifies actions for `Arm2` based on object detection and classification results.
 
-## Future Directions
-- **Reliability and Adaptability**: Enhance system reliability and adaptability to varying operational conditions.
-- **Efficiency Improvements**: Implement advanced detection and motion planning algorithms for improved efficiency.
+### Additional Services and Topics
+- **Respawn_objects Service**:
+  - Utilized by `Arm1` to manage the respawn of objects on the boxes, ensuring continuous operation without manual resets.
+  - `Arm1` sends service requests to the `Spawn_Objects` node, which processes these requests to maintain system readiness and object availability.
+
+- **gripper/control Service**:
+  - Allows `Arm1` to manipulate the vacuum gripper for secure object handling during the order fulfillment process.
+
+- **ROS Topics for Visual Feedback and Debugging**:
+  - `ariac/arm1/move_group/display_planned_path`: Used by `Arm1` to display the planned motion paths on RViz, providing a visual tool for monitoring and adjusting robotic movements.
+
+## System Limitations and Future Directions
+- **Current Shortcomings**:
+  - Reduced efficiency with high-speed conveyor operations.
+  - Limited capability in detecting and handling multiple objects simultaneously.
+- **Proposed Enhancements**:
+  - Implement a feedback loop between arms to improve synchronization and error handling.
+  - Integrate speed sensors to adapt robotic actions to varying conveyor speeds.
 
 ## Additional Resources
 - **Project Demonstration Video**: [Watch Here](https://youtu.be/NoscmFj998E)
-
-
